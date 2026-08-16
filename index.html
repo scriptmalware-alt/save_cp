@@ -168,32 +168,8 @@ button.success{
     margin-top:18px;
 }
 
-.camera-title{
-    font-size:13px;
-    color:#cbd5e1;
-    margin-bottom:9px;
-}
-
 .camera-frame{
-    width:100%;
-    overflow:hidden;
-    border-radius:18px;
-    background:#000;
-    border:1px solid rgba(255,255,255,.12);
-}
-
-#cameraPreview{
-    display:block;
-    width:100%;
-    aspect-ratio:16/9;
-    object-fit:cover;
-}
-
-#photoCanvas{
     display:none;
-    width:100%;
-    aspect-ratio:16/9;
-    object-fit:cover;
 }
 
 .camera-actions{
@@ -292,9 +268,21 @@ button.success{
     <div id="status"></div>
 
     <!-- CAMERA -->
+    <div class="camera-box" id="cameraBox">
 
+        <div class="camera-frame">
 
-        <!-- BUTTON SAAT LIVE CAMERA -->
+            <video
+                id="cameraPreview"
+                autoplay
+                playsinline
+                muted>
+            </video>
+
+            <canvas id="photoCanvas"></canvas>
+
+        </div>
+
         <div class="camera-actions" id="cameraActions">
 
             <button
@@ -641,12 +629,8 @@ function ambilFoto(){
 
 
     /*
-     * Tampilkan hasil foto
+     * Simpan frame ke canvas (preview disembunyikan)
      */
-
-    video.style.display = "none";
-
-    canvas.style.display = "block";
 
     cameraActions.style.display = "none";
 
@@ -730,12 +714,6 @@ Longitude : ${longitude}`;
 
 function ambilUlang(){
 
-    const video =
-        document.getElementById("cameraPreview");
-
-    const canvas =
-        document.getElementById("photoCanvas");
-
     const cameraActions =
         document.getElementById("cameraActions");
 
@@ -747,10 +725,6 @@ function ambilUlang(){
 
 
     fotoSudahDiambil = false;
-
-    canvas.style.display = "none";
-
-    video.style.display = "block";
 
     cameraActions.style.display = "block";
 
