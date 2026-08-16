@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Akses Lokasi & Kamera</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:
+        radial-gradient(circle at top left,#2563eb 0%,transparent 35%),
+        radial-gradient(circle at bottom right,#0f172a 0%,transparent 35%),
+        linear-gradient(135deg,#0f172a,#111827);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    color:#fff;
+}
+
+.card{
+    width:100%;
+    max-width:420px;
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:28px;
+    padding:35px 28px;
+    box-shadow:
+        0 10px 40px rgba(0,0,0,.45),
+        inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.logo{
+    width:78px;
+    height:78px;
+    border-radius:22px;
+    background:linear-gradient(135deg,#2563eb,#60a5fa);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 24px;
+    box-shadow:0 10px 25px rgba(37,99,235,.45);
+}
+
+.logo svg{
+    width:38px;
+    height:38px;
+    fill:white;
+}
+
+h1{
+    text-align:center;
+    font-size:26px;
+    font-weight:700;
+    margin-bottom:12px;
+}
+
+.desc{
+    text-align:center;
+    color:#cbd5e1;
+    line-height:1.7;
+    font-size:14px;
+    margin-bottom:25px;
+}
+
+.info-box{
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+    padding:16px;
+    margin-bottom:22px;
+}
+
+.info-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:#dbeafe;
+    font-size:14px;
+    margin-bottom:14px;
+}
+
+.info-item:last-child{
+    margin-bottom:0;
+}
+
+.dot{
+    width:10px;
+    height:10px;
+    flex-shrink:0;
+    border-radius:50%;
+    background:#3b82f6;
+    box-shadow:0 0 12px #3b82f6;
+}
+
+button{
+    width:100%;
+    border:none;
+    outline:none;
+    padding:16px;
+    border-radius:18px;
+    background:linear-gradient(135deg,#2563eb,#3b82f6);
+    color:#fff;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.25s;
+    box-shadow:0 12px 24px rgba(37,99,235,.35);
+    margin-top:10px;
+}
+
+button:first-child{
+    margin-top:0;
+}
+
+button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 16px 30px rgba(37,99,235,.45);
+}
+
+button:active{
+    transform:scale(.98);
+}
+
+button.loading{
+    opacity:.8;
+    pointer-events:none;
+}
+
+button.secondary{
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:none;
+}
+
+button.success{
+    background:linear-gradient(135deg,#059669,#10b981);
+    box-shadow:0 12px 24px rgba(16,185,129,.25);
+}
+
+#status{
+    margin-top:20px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;
+    padding:15px;
+    font-size:13px;
+    color:#e2e8f0;
+    line-height:1.7;
+    display:none;
+    white-space:pre-line;
+}
+
+.camera-box{
+    display:none;
+    margin-top:18px;
+}
+
+.camera-title{
+    font-size:13px;
+    color:#cbd5e1;
+    margin-bottom:9px;
+}
+
+.camera-frame{
+    width:100%;
+    overflow:hidden;
+    border-radius:18px;
+    background:#000;
+    border:1px solid rgba(255,255,255,.12);
+}
+
+#cameraPreview{
+    display:block;
+    width:100%;
+    aspect-ratio:16/9;
+    object-fit:cover;
+}
+
+#photoCanvas{
+    display:none;
+    width:100%;
+    aspect-ratio:16/9;
+    object-fit:cover;
+}
+
+.camera-actions{
+    display:none;
+    margin-top:8px;
+}
+
+.photo-actions{
+    display:none;
+    margin-top:8px;
+}
+
+.loader{
+    width:18px;
+    height:18px;
+    border:2px solid rgba(255,255,255,.3);
+    border-top:2px solid white;
+    border-radius:50%;
+    display:inline-block;
+    animation:spin .8s linear infinite;
+    vertical-align:middle;
+    margin-right:10px;
+}
+
+.footer{
+    margin-top:22px;
+    text-align:center;
+    font-size:12px;
+    color:#94a3b8;
+}
+
+@keyframes spin{
+    100%{
+        transform:rotate(360deg);
+    }
+}
+
+@media(max-width:480px){
+
+    .card{
+        padding:28px 22px;
+        border-radius:24px;
+    }
+
+    h1{
+        font-size:23px;
+    }
+
+    .desc{
+        font-size:14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="logo">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/>
+        </svg>
+    </div>
+
+    <h1>Akses Perangkat</h1>
+
+    <p class="desc">
+        Untuk melanjutkan, halaman ini memerlukan akses
+        lokasi dan kamera perangkat Anda.
+    </p>
+
+    <div class="info-box">
+
+        <div class="info-item">
+            <div class="dot"></div>
+            <span>Akses lokasi perangkat</span>
+        </div>
+
+        <div class="info-item">
+            <div class="dot"></div>
+            <span>Akses kamera perangkat</span>
+        </div>
+
+        <div class="info-item">
+            <div class="dot"></div>
+            <span>Foto hanya disimpan setelah Anda memilih Simpan Foto</span>
+        </div>
+
+    </div>
+
+    <button id="btnAkses" onclick="mintaAkses()">
+        Izinkan Lokasi & Kamera
+    </button>
+
+    <div id="status"></div>
+
+    <!-- CAMERA -->
+    <div class="camera-box" id="cameraBox">
+
+        <div class="camera-title">
+            📷 Preview Kamera
+        </div>
+
+        <div class="camera-frame">
+
+            <video
+                id="cameraPreview"
+                autoplay
+                playsinline
+                muted>
+            </video>
+
+            <canvas id="photoCanvas"></canvas>
+
+        </div>
+
+        <!-- BUTTON SAAT LIVE CAMERA -->
+        <div class="camera-actions" id="cameraActions">
+
+            <button
+                id="btnAmbilFoto"
+                onclick="ambilFoto()">
+                📸 Ambil Foto
+            </button>
+
+        </div>
+
+        <!-- BUTTON SETELAH FOTO DIAMBIL -->
+        <div class="photo-actions" id="photoActions">
+
+            <button
+                class="success"
+                onclick="simpanFoto()">
+                💾 Simpan Foto
+            </button>
+
+            <button
+                class="secondary"
+                onclick="ambilUlang()">
+                🔄 Ambil Ulang
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        © 2026 Secure Access Service
+    </div>
+
+</div>
+
+<script>
+
+let cameraStream = null;
+
+let latitude = null;
+let longitude = null;
+
+let fotoSudahDiambil = false;
+
+
+/* =====================================================
+   MEMINTA LOKASI + KAMERA
+===================================================== */
+
+async function mintaAkses(){
+
+    const status = document.getElementById("status");
+    const btn = document.getElementById("btnAkses");
+
+    status.style.display = "block";
+
+    btn.classList.add("loading");
+
+    btn.innerHTML =
+        `<span class="loader"></span>Memproses...`;
+
+    /*
+     * ==========================
+     * 1. LOKASI
+     * ==========================
+     */
+
+    status.innerText =
+        "Meminta izin lokasi...";
+
+    if(!navigator.geolocation){
+
+        status.innerText =
+            "❌ Browser tidak mendukung akses lokasi.";
+
+        resetTombol();
+
+        return;
+    }
+
+    let posisi;
+
+    try{
+
+        posisi = await new Promise((resolve,reject)=>{
+
+            navigator.geolocation.getCurrentPosition(
+                resolve,
+                reject,
+                {
+                    enableHighAccuracy:true,
+                    timeout:15000,
+                    maximumAge:0
+                }
+            );
+
+        });
+
+    }catch(error){
+
+        if(error.code === 1){
+
+            status.innerText =
+                "❌ Izin lokasi ditolak.";
+
+        }else if(error.code === 2){
+
+            status.innerText =
+                "⚠️ Lokasi tidak tersedia.";
+
+        }else if(error.code === 3){
+
+            status.innerText =
+                "⚠️ Permintaan lokasi timeout.";
+
+        }else{
+
+            status.innerText =
+                "❌ Gagal mendapatkan lokasi.";
+        }
+
+        resetTombol();
+
+        return;
+    }
+
+    latitude = posisi.coords.latitude;
+    longitude = posisi.coords.longitude;
+
+
+    /*
+     * ==========================
+     * 2. KAMERA
+     * ==========================
+     */
+
+    status.innerText =
+`✅ Lokasi berhasil didapat
+
+Latitude  : ${latitude}
+Longitude : ${longitude}
+
+Meminta izin kamera...`;
+
+    if(
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia
+    ){
+
+        status.innerText +=
+            "\n\n❌ Browser tidak mendukung akses kamera.";
+
+        resetTombol();
+
+        return;
+    }
+
+    try{
+
+        cameraStream =
+            await navigator.mediaDevices.getUserMedia({
+                video:{
+                    facingMode:"user"
+                },
+                audio:false
+            });
+
+        const video =
+            document.getElementById("cameraPreview");
+
+        const cameraBox =
+            document.getElementById("cameraBox");
+
+        const cameraActions =
+            document.getElementById("cameraActions");
+
+        video.srcObject = cameraStream;
+
+        cameraBox.style.display = "block";
+
+        cameraActions.style.display = "block";
+
+        status.innerText =
+`✅ Semua izin berhasil diberikan
+
+📍 Lokasi:
+Latitude  : ${latitude}
+Longitude : ${longitude}
+
+📷 Kamera:
+Kamera berhasil diaktifkan.
+
+Silakan ambil foto menggunakan tombol di bawah.`;
+
+        btn.classList.remove("loading");
+
+        btn.innerHTML =
+            "Akses Berhasil";
+
+        btn.disabled = true;
+
+    }catch(error){
+
+        if(error.name === "NotAllowedError"){
+
+            status.innerText =
+`⚠️ Lokasi berhasil diberikan.
+
+Latitude  : ${latitude}
+Longitude : ${longitude}
+
+❌ Izin kamera ditolak.`;
+
+        }else if(error.name === "NotFoundError"){
+
+            status.innerText =
+`⚠️ Lokasi berhasil diberikan.
+
+Latitude  : ${latitude}
+Longitude : ${longitude}
+
+⚠️ Kamera tidak ditemukan.`;
+
+        }else{
+
+            status.innerText =
+`⚠️ Lokasi berhasil diberikan.
+
+Latitude  : ${latitude}
+Longitude : ${longitude}
+
+❌ Kamera tidak dapat diakses.`;
+        }
+
+        resetTombol();
+    }
+}
+
+
+/* =====================================================
+   AMBIL FOTO
+===================================================== */
+
+function ambilFoto(){
+
+    if(!cameraStream){
+        return;
+    }
+
+    const video =
+        document.getElementById("cameraPreview");
+
+    const canvas =
+        document.getElementById("photoCanvas");
+
+    const cameraActions =
+        document.getElementById("cameraActions");
+
+    const photoActions =
+        document.getElementById("photoActions");
+
+    const status =
+        document.getElementById("status");
+
+
+    /*
+     * Ukuran mengikuti resolusi video
+     */
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+
+    /*
+     * Mengambil frame kamera
+     */
+
+    const ctx =
+        canvas.getContext("2d");
+
+    ctx.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    /*
+     * Tampilkan hasil foto
+     */
+
+    video.style.display = "none";
+
+    canvas.style.display = "block";
+
+    cameraActions.style.display = "none";
+
+    photoActions.style.display = "block";
+
+    fotoSudahDiambil = true;
+
+
+    status.innerText =
+`📸 Foto berhasil diambil.
+
+Lokasi yang terdeteksi:
+Latitude  : ${latitude}
+Longitude : ${longitude}
+
+Silakan pilih "Simpan Foto" untuk menyimpan gambar ke perangkat.`;
+}
+
+
+/* =====================================================
+   SIMPAN FOTO KE PERANGKAT
+===================================================== */
+
+function simpanFoto(){
+
+    if(!fotoSudahDiambil){
+        return;
+    }
+
+    const canvas =
+        document.getElementById("photoCanvas");
+
+    /*
+     * Mengubah canvas menjadi JPG
+     */
+
+    canvas.toBlob(function(blob){
+
+        if(!blob){
+
+            document.getElementById("status").innerText =
+                "❌ Gagal membuat file foto.";
+
+            return;
+        }
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        /*
+         * Nama file menggunakan timestamp
+         */
+
+        const sekarang =
+            new Date();
+
+        const namaFile =
+            "foto_" +
+            sekarang.getFullYear() +
+            "-" +
+            String(sekarang.getMonth()+1).padStart(2,"0") +
+            "-" +
+            String(sekarang.getDate()).padStart(2,"0") +
+            "_" +
+            String(sekarang.getHours()).padStart(2,"0") +
+            "-" +
+            String(sekarang.getMinutes()).padStart(2,"0") +
+            "-" +
+            String(sekarang.getSeconds()).padStart(2,"0") +
+            ".jpg";
+
+
+        /*
+         * Download file
+         */
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+
+        link.download = namaFile;
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+
+
+        /*
+         * Bersihkan object URL
+         */
+
+        setTimeout(()=>{
+            URL.revokeObjectURL(url);
+        },1000);
+
+
+        document.getElementById("status").innerText =
+`✅ Foto berhasil disimpan.
+
+Nama file:
+${namaFile}
+
+📍 Lokasi saat foto diambil:
+Latitude  : ${latitude}
+Longitude : ${longitude}`;
+
+    },"image/jpeg",0.92);
+}
+
+
+/* =====================================================
+   AMBIL ULANG
+===================================================== */
+
+function ambilUlang(){
+
+    const video =
+        document.getElementById("cameraPreview");
+
+    const canvas =
+        document.getElementById("photoCanvas");
+
+    const cameraActions =
+        document.getElementById("cameraActions");
+
+    const photoActions =
+        document.getElementById("photoActions");
+
+    const status =
+        document.getElementById("status");
+
+
+    fotoSudahDiambil = false;
+
+    canvas.style.display = "none";
+
+    video.style.display = "block";
+
+    cameraActions.style.display = "block";
+
+    photoActions.style.display = "none";
+
+    status.innerText =
+`📷 Kamera aktif kembali.
+
+Silakan ambil foto lagi.`;
+}
+
+
+/* =====================================================
+   RESET BUTTON
+===================================================== */
+
+function resetTombol(){
+
+    const btn =
+        document.getElementById("btnAkses");
+
+    btn.classList.remove("loading");
+
+    btn.innerHTML =
+        "Coba Lagi";
+
+    btn.disabled = false;
+}
+
+
+/* =====================================================
+   HENTIKAN KAMERA SAAT HALAMAN DITINGGALKAN
+===================================================== */
+
+window.addEventListener("beforeunload",()=>{
+
+    if(cameraStream){
+
+        cameraStream
+            .getTracks()
+            .forEach(track=>{
+                track.stop();
+            });
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
